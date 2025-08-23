@@ -15,10 +15,10 @@ const (
 
 func main() {
 	dirName, fileName := inputDate()
-	fmt.Println("Directory name:", dirName)
+	// fmt.Println("Directory name:", dirName)
 
 	outputPath := strings.Join([]string{"./", dirName}, "")
-	fmt.Println("Output path:", outputPath)
+	// fmt.Println("Output path:", outputPath)
 
 	createDirectory(outputPath)
 	
@@ -28,28 +28,55 @@ func main() {
 func inputDate() (string, string) {
 	var year int
 	var month string
-	
-	fmt.Print("Enter year and month to create directory & file (ex. 2025 JAN, 2025 FEB): ")
-	fmt.Scanln(&year, &month)
 
-	if year < 0 {
-		fmt.Println("Invalid input(negative value). Please enter a valid year.")
-		return inputDate() 
+	validMonths := map[string]bool{
+    "JAN": true, "FEB": true, "MAR": true, "APR": true,
+    "MAY": true, "JUN": true, "JUL": true, "AUG": true,
+    "SEP": true, "OCT": true, "NOV": true, "DEC": true,
 	}
 
-	if month == "" {
-		fmt.Println("Invalid input(empty value). Please enter a valid month.")
-		return inputDate() 
+	// Code refactored to use a loop for input validation(for preventing Stack Overflow) 
+	for {
+		fmt.Print("Enter year and month to create directory & file (ex. 2025 JAN, 2025 FEB): ")
+		fmt.Scanln(&year, &month)
+
+		if year < 0 {
+			fmt.Println("Invalid input(negative value). Please enter a valid year.")
+			continue
+		}
+
+		if month == "" {
+			fmt.Println("Invalid input(empty value). Please enter a valid month.")
+			continue
+		}
+
+		if !validMonths[strings.ToUpper(month)] {
+			fmt.Println("Invalid input(month). Please enter a valid month (3-digit month (ex. JAN, FEB, ...)).")
+			continue
+		}
+
+		return strconv.Itoa(year), strings.ToUpper(month)
 	}
 
-	// reader := bufio.NewReader(os.Stdin)
-	// fmt.Print("Enter year.month to create path (ex. 2025.01, 2025.12, ...): ")
-		
-	// year, _ := reader.ReadString('\n')
-	// fmt.Print("What month is this? (3-digit month (ex. JAN): ")
-	// month, _ := reader.ReadString('\n')
+	// fmt.Print("Enter year and month to create directory & file (ex. 2025 JAN, 2025 FEB): ")
+	// fmt.Scanln(&year, &month)
 
-	return strconv.Itoa(year), month
+	// if year < 0 {
+	// 	fmt.Println("Invalid input(negative value). Please enter a valid year.")
+	// 	return inputDate() 
+	// }
+
+	// if month == "" {
+	// 	fmt.Println("Invalid input(empty value). Please enter a valid month.")
+	// 	return inputDate() 
+	// }
+
+	// if !validMonths[strings.ToUpper(month)] {
+	// 	fmt.Println("Invalid input(month). Please enter a valid month (3-digit month (ex. JAN, FEB, ...)).")
+	// 	return inputDate() 
+	// }
+
+	// return strconv.Itoa(year), month
 }
 
 func createDirectory(path string) error {
@@ -74,14 +101,16 @@ func createFile(dirName, fileName string) {
 			return
 		}
 		defer file.Close()
-		
 
+		days := daysIn(dirName, fileName)
 		writer := bufio.NewWriter(file)
 		sampleContent, _ := readSampleFile(sampleFilePath)
 		// // 여기서 다시 시작 : for 반복문 써서 fileName에 해당하는 월의 최대일 수 만큼 반복으로 sampleCOntent 내보내기
-		// writer.WriteString(sampleContent)
-		// writer.Flush()
-		// fmt.Printf("File created successfully at %s\n", filePath)
+		for i := 1; i <= days; i++ {
+			writer.WriteString(sampleContent)
+		}
+		writer.Flush()
+		fmt.Printf("File created successfully at %s\n", filePath)
 	} else {
 		fmt.Printf("File already exists at %s\n", filePath)
 	}
@@ -89,6 +118,7 @@ func createFile(dirName, fileName string) {
 
 // Check if the directory or file exists (exist: true, not exist: false)
 func existCheck(path string) bool {
+
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
 	}
@@ -104,6 +134,18 @@ func readSampleFile(filepath string) (string, error) {
 	}
 
 	return string(data), nil
+}
+
+func daysIn(year string, month string) int {
+	
+	y, _ := strconv.Atoi(year)
+	months := map[string]time.Month{
+		"JAN": time.January, "FEB": time.February, "MAR": time.March, "APR": time.April,
+		"MAY": time.May, "JUN": time.June, "JUL": time.July, "AUG": time.August,
+		"SEP": time.September, "OCT": time.October, "NOV": time.November, "DEC": time.December,
+	}
+
+	return time.Date(y, months[month]+1, 0, 0, 0, 0, 0, time.UTC).Day()
 }
 
 
