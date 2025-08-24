@@ -1,4 +1,3 @@
-# 2025.08.18
 ## Work
 #### Today's work
 - N/A
