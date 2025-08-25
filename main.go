@@ -107,7 +107,7 @@ func createFile(dirName, fileName string) {
 		sampleContent, _ := readSampleFile(sampleFilePath)
 		// // 여기서 다시 시작 : for 반복문 써서 fileName에 해당하는 월의 최대일 수 만큼 반복으로 sampleCOntent 내보내기
 		for i := 1; i <= days; i++ {
-			line := fmt.Sprintf("# %s.%s.%d\n\n%s", dirName, fileName, i, sampleContent)
+			line := fmt.Sprintf("# %s-%s-%d\n\n%s", dirName, fileName, i, sampleContent)
 			writer.WriteString(line)
 		}
 		writer.Flush()
