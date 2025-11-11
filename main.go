@@ -14,7 +14,7 @@ const (
 )
 
 func main() {
-	dirName, fileName := inputDate()
+	dirName, fileName, order := inputDate()
 	// fmt.Println("Directory name:", dirName)
 
 	outputPath := strings.Join([]string{"./", dirName}, "")
@@ -22,10 +22,10 @@ func main() {
 
 	createDirectory(outputPath)
 	
-	createFile(dirName, fileName)
+	createFile(dirName, fileName, order)
 }
 
-func inputDate() (string, string) {
+func inputDate() (string, string, string) {
 	var year int
 	var month string
 
@@ -33,6 +33,12 @@ func inputDate() (string, string) {
     "JAN": true, "FEB": true, "MAR": true, "APR": true,
     "MAY": true, "JUN": true, "JUL": true, "AUG": true,
     "SEP": true, "OCT": true, "NOV": true, "DEC": true,
+	}
+
+	orders := map[string]string{
+    "JAN": "01", "FEB": "02", "MAR": "03", "APR": "04",
+    "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08",
+    "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12",
 	}
 
 	// Code refactored to use a loop for input validation(for preventing Stack Overflow) 
@@ -55,28 +61,8 @@ func inputDate() (string, string) {
 			continue
 		}
 
-		return strconv.Itoa(year), strings.ToUpper(month)
+		return strconv.Itoa(year), strings.ToUpper(month), orders[strings.ToUpper(month)]
 	}
-
-	// fmt.Print("Enter year and month to create directory & file (ex. 2025 JAN, 2025 FEB): ")
-	// fmt.Scanln(&year, &month)
-
-	// if year < 0 {
-	// 	fmt.Println("Invalid input(negative value). Please enter a valid year.")
-	// 	return inputDate() 
-	// }
-
-	// if month == "" {
-	// 	fmt.Println("Invalid input(empty value). Please enter a valid month.")
-	// 	return inputDate() 
-	// }
-
-	// if !validMonths[strings.ToUpper(month)] {
-	// 	fmt.Println("Invalid input(month). Please enter a valid month (3-digit month (ex. JAN, FEB, ...)).")
-	// 	return inputDate() 
-	// }
-
-	// return strconv.Itoa(year), month
 }
 
 func createDirectory(path string) error {
@@ -89,9 +75,9 @@ func createDirectory(path string) error {
 	return nil
 }
 
-func createFile(dirName, fileName string) {
+func createFile(dirName, fileName, order string) {
 
-	filePath := strings.Join([]string{"./", dirName, "/", fileName, ".md"}, "")
+	filePath := strings.Join([]string{"./", dirName, "/", order, ".", fileName, ".md"}, "")
 	fmt.Println("File path:", filePath)
 
 	if !existCheck(filePath) {
@@ -105,7 +91,7 @@ func createFile(dirName, fileName string) {
 		days := daysIn(dirName, fileName)
 		writer := bufio.NewWriter(file)
 		sampleContent, _ := readSampleFile(sampleFilePath)
-		// // 여기서 다시 시작 : for 반복문 써서 fileName에 해당하는 월의 최대일 수 만큼 반복으로 sampleCOntent 내보내기
+		
 		for i := 1; i <= days; i++ {
 			line := fmt.Sprintf("# %s-%s-%d\n\n%s", dirName, fileName, i, sampleContent)
 			writer.WriteString(line)
